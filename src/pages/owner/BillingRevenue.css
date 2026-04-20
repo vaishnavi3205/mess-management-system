@@ -52,6 +52,30 @@
   border: 1px solid #d1d5db;
 }
 
+/* Error Text */
+.error-text {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  z-index: 1000;
+  text-align: center;
+}
+
+/* Error Text */
+.error-text {
+  text-align: center;
+  color: #dc2626;
+  font-weight: 500;
+  margin: 10px 0;
+}
+
 /* Summary Cards */
 .billing-summary {
   display: grid;
