@@ -69,7 +69,7 @@ const Signup = () => {
     try {
       setLoading(true);
 
-      const result = signup(formData);
+      const result = await signup(formData);
       if (result.success) {
         navigate("/");
       } else {

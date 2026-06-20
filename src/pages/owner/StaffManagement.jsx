@@ -1,218 +1,104 @@
 import React, { useState } from "react";
+import { useMess } from "../../context/MessContext";
 import "./StaffManagement.css";
 
 const StaffManagement = () => {
-  const [staffList, setStaffList] = useState([
-    {
-      id: 1,
-      name: "Ramesh Patil",
-      role: "Cook",
-      phone: "9876543210",
-      joiningDate: "2024-01-10",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Suresh More",
-      role: "Helper",
-      phone: "9123456780",
-      joiningDate: "2024-02-05",
-      status: "Pending",
-    },
-  ]);
-
+  const { staff: staffList, addStaff, updateStaff, deleteStaff } = useMess();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [showModal, setShowModal] = useState(false);
-  const [viewStaff, setViewStaff] = useState(null);
+  const [newStaff, setNewStaff] = useState({ name: "", role: "", phone: "", joiningDate: "" });
 
-  const [newStaff, setNewStaff] = useState({
-    name: "",
-    role: "",
-    phone: "",
-    joiningDate: "",
-  });
-
-  const handleAddStaff = () => {
-    if (!newStaff.name || !newStaff.role || !newStaff.phone || !newStaff.joiningDate) {
-      alert("Please fill all fields!");
+  const handleAddStaff = async (e) => {
+    e.preventDefault();
+    if (!newStaff.name.trim() || !newStaff.role.trim() || !newStaff.phone.trim() || !newStaff.joiningDate) {
+      alert("Please fill all fields");
       return;
     }
-
-    const staff = {
-      id: Date.now(),
-      ...newStaff,
-      status: "Pending",
-    };
-
-    setStaffList([...staffList, staff]);
+    await addStaff({ ...newStaff, status: "Pending", date: new Date().toLocaleDateString() });
     setNewStaff({ name: "", role: "", phone: "", joiningDate: "" });
-    setShowModal(false);
   };
 
-  const handleRemove = (id) => {
-    setStaffList(staffList.filter((s) => s.id !== id));
+  const handleApprove = async (id) => {
+    await updateStaff(id, { status: "Active" });
   };
 
-  const handleApprove = (id) => {
-    setStaffList(
-      staffList.map((s) =>
-        s.id === id ? { ...s, status: "Active" } : s
-      )
-    );
+  const handleRemove = async (id) => {
+    await deleteStaff(id);
   };
 
   const filteredStaff = staffList.filter((staff) => {
     const matchesSearch =
       staff.name.toLowerCase().includes(search.toLowerCase()) ||
       staff.role.toLowerCase().includes(search.toLowerCase());
-
-    const matchesFilter =
-      filter === "All" ? true : staff.status === filter;
-
+    const matchesFilter = filter === "All" ? true : staff.status === filter;
     return matchesSearch && matchesFilter;
   });
 
+  const totalStaff = staffList.length;
+  const activeStaff = staffList.filter((s) => s.status === "Active").length;
+  const pendingStaff = staffList.filter((s) => s.status === "Pending").length;
+
   return (
     <div className="staff-container">
-      <div className="header">
-        <div>
-          <h2>Staff Management</h2>
-          <p>Manage mess staff details and status</p>
-        </div>
-        <button className="add-btn" onClick={() => setShowModal(true)}>
-          + Add Staff
-        </button>
+      <h2>Staff Management</h2>
+      <p className="subtitle">Manage mess staff details and status</p>
+
+      <div className="summary-grid">
+        <div className="card"><h4>Total Staff</h4><h2>{totalStaff}</h2></div>
+        <div className="card active-card"><h4>Active Staff</h4><h2>{activeStaff}</h2></div>
+        <div className="card pending-card"><h4>Pending Staff</h4><h2>{pendingStaff}</h2></div>
       </div>
 
-      <div className="controls">
-        <input
-          type="text"
-          placeholder="Search by name or role..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <form className="staff-form" onSubmit={handleAddStaff}>
+        <input type="text" placeholder="Staff Name" value={newStaff.name}
+          onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} />
+        <input type="text" placeholder="Role (Cook, Helper, etc.)" value={newStaff.role}
+          onChange={(e) => setNewStaff({ ...newStaff, role: e.target.value })} />
+        <input type="tel" placeholder="Phone Number" value={newStaff.phone}
+          onChange={(e) => setNewStaff({ ...newStaff, phone: e.target.value })} />
+        <input type="date" value={newStaff.joiningDate}
+          onChange={(e) => setNewStaff({ ...newStaff, joiningDate: e.target.value })} />
+        <button type="submit">Add Staff</button>
+      </form>
 
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="All">All Staff</option>
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-        </select>
+      <div className="filter-tabs">
+        {["All", "Active", "Pending"].map((tab) => (
+          <button key={tab} className={filter === tab ? "active" : ""} onClick={() => setFilter(tab)}>{tab}</button>
+        ))}
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Phone</th>
-            <th>Joining Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStaff.map((staff) => (
-            <tr key={staff.id}>
-              <td>{staff.name}</td>
-              <td>{staff.role}</td>
-              <td>{staff.phone}</td>
-              <td>{staff.joiningDate}</td>
-              <td>
-                <span className={`status ${staff.status.toLowerCase()}`}>
-                  {staff.status}
-                </span>
-              </td>
-              <td>
+      <div className="search-box">
+        <input type="text" placeholder="Search by name or role..." value={search}
+          onChange={(e) => setSearch(e.target.value)} />
+      </div>
+
+      <div className="staff-list">
+        {filteredStaff.map((staff) => (
+          <div key={staff.id} className={`staff-card ${staff.status.toLowerCase()}`}>
+            <div className="staff-header">
+              <h3>{staff.name}</h3>
+              <span className={staff.status === "Active" ? "badge active-badge" : "badge pending-badge"}>
+                {staff.status}
+              </span>
+            </div>
+            <p>Role: {staff.role}</p>
+            <p>Phone: {staff.phone}</p>
+            <p>Joining Date: {staff.joiningDate}</p>
+            <div className="staff-footer">
+              <span>Added: {staff.date || "N/A"}</span>
+              <div className="actions">
                 {staff.status === "Pending" && (
-                  <button
-                    className="approve-btn"
-                    onClick={() => handleApprove(staff.id)}
-                  >
-                    Approve
-                  </button>
+                  <button className="approve-btn" onClick={() => handleApprove(staff.id)}>Approve</button>
                 )}
-                <button
-                  className="view-btn"
-                  onClick={() => setViewStaff(staff)}
-                >
-                  View
-                </button>
-                <button
-                  className="remove-btn"
-                  onClick={() => handleRemove(staff.id)}
-                >
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <p className="count">
-        Showing {filteredStaff.length} of {staffList.length} staff members
-      </p>
-
-      {/* Add Modal */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Add Staff</h3>
-            <input
-              type="text"
-              placeholder="Staff Name"
-              value={newStaff.name}
-              onChange={(e) =>
-                setNewStaff({ ...newStaff, name: e.target.value })
-              }
-            />
-            <input
-              type="text"
-              placeholder="Role"
-              value={newStaff.role}
-              onChange={(e) =>
-                setNewStaff({ ...newStaff, role: e.target.value })
-              }
-            />
-            <input
-              type="text"
-              placeholder="Phone"
-              value={newStaff.phone}
-              onChange={(e) =>
-                setNewStaff({ ...newStaff, phone: e.target.value })
-              }
-            />
-            <input
-              type="date"
-              value={newStaff.joiningDate}
-              onChange={(e) =>
-                setNewStaff({ ...newStaff, joiningDate: e.target.value })
-              }
-            />
-
-            <div className="modal-buttons">
-              <button onClick={handleAddStaff}>Add</button>
-              <button onClick={() => setShowModal(false)}>Cancel</button>
+                <button className="delete-btn" onClick={() => handleRemove(staff.id)}>Remove</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ))}
+        {filteredStaff.length === 0 && <p className="empty">No staff found</p>}
+      </div>
 
-      {/* View Modal */}
-      {viewStaff && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Staff Details</h3>
-            <p><strong>Name:</strong> {viewStaff.name}</p>
-            <p><strong>Role:</strong> {viewStaff.role}</p>
-            <p><strong>Phone:</strong> {viewStaff.phone}</p>
-            <p><strong>Joining Date:</strong> {viewStaff.joiningDate}</p>
-            <p><strong>Status:</strong> {viewStaff.status}</p>
-            <button onClick={() => setViewStaff(null)}>Close</button>
-          </div>
-        </div>
-      )}
+      <p className="count">Showing {filteredStaff.length} of {staffList.length} staff members</p>
     </div>
   );
 };

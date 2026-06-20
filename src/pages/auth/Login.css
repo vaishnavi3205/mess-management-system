@@ -12,6 +12,7 @@
   padding: 40px;
   width: 380px;
   border-radius: 12px;
+  border-top: 4px solid #6366f1;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
@@ -35,35 +36,41 @@ label {
   font-weight: 500;
 }
 
-input,
-select {
-  margin-top: 6px;
-  padding: 10px;
+.login-box input,
+.login-box select {
+  width: 100%;
+  padding: 11px 14px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-top: 6px;
   outline: none;
   transition: 0.3s;
 }
 
-input:focus,
-select:focus {
-  border-color: #2563eb;
+.login-box input:focus,
+.login-box select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
-button {
-  margin-top: 20px;
+.login-box button[type="submit"] {
+  width: 100%;
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: #1e3a8a;
+  background: #6366f1;
   color: white;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
+  margin-top: 20px;
   transition: 0.3s;
 }
 
-button:hover {
-  background: #2563eb;
+.login-box button[type="submit"]:hover {
+  background: #4f46e5;
 }
 
 .error {

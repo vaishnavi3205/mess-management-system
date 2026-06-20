@@ -103,6 +103,14 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
+.complaint-card.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.complaint-card.resolved {
+  border-left: 4px solid #10b981;
+}
+
 .complaint-header {
   display: flex;
   justify-content: space-between;
@@ -116,11 +124,15 @@
 }
 
 .pending-badge {
-  background: #fed7aa;
+  background: #fff7ed;
+  color: #b45309;
+  font-weight: 600;
 }
 
 .resolved-badge {
-  background: #bbf7d0;
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 600;
 }
 
 .complaint-footer {
@@ -157,4 +169,20 @@
   text-align: center;
   color: #6b7280;
   margin-top: 20px;
+}
+
+/* Error Text Popup */
+.error-text {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  z-index: 1000;
+  text-align: center;
 }

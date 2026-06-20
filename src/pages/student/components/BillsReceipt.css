@@ -1,0 +1,102 @@
+/* Bills & Receipt Component Styles */
+.bills-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid #e2e8f0;
+}
+
+.summary-card.paid {
+  border-left-color: #48bb78;
+}
+
+.summary-card.unpaid {
+  border-left-color: #f56565;
+}
+
+.summary-card.total {
+  border-left-color: #4299e1;
+}
+
+.summary-card h4 {
+  margin: 0 0 8px 0;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-wrapper th {
+  background: #f7fafc;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.paid {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.status-badge.unpaid {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.download-btn:hover {
+  background: #3182ce;
+}

@@ -1,11 +1,14 @@
 import AppRoutes from "./routes/AppRoutes";
 import { MessProvider } from "./context/MessContext";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <MessProvider>
-      <AppRoutes />
-    </MessProvider>
+    <AuthProvider>
+      <MessProvider>
+        <AppRoutes />
+      </MessProvider>
+    </AuthProvider>
   );
 }
 

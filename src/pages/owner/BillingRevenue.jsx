@@ -1,193 +1,103 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useMess } from "../../context/MessContext";
 import "./BillingRevenue.css";
 
 const BillingRevenue = () => {
-  const [bills, setBills] = useState([]);
+  const { students, bills, addBill, updateBill, deleteBill } = useMess();
   const [filter, setFilter] = useState("All");
-  const [error, setError] = useState("");
+  const [newBill, setNewBill] = useState({ studentName: "", month: "", amount: "", status: "Unpaid" });
 
-  const [newBill, setNewBill] = useState({
-    studentName: "",
-    month: "",
-    amount: "",
-    status: "Unpaid",
-  });
-
-  // ===== ADD BILL FUNCTION =====
-  const handleAddBill = (e) => {
+  const handleAddBill = async (e) => {
     e.preventDefault();
-
-    if (
-      newBill.studentName.trim() === "" ||
-      newBill.month.trim() === "" ||
-      newBill.amount === ""
-    ) {
-      setError("⚠ Please fill all fields before adding bill.");
+    if (!newBill.studentName.trim() || !newBill.month.trim() || !newBill.amount) {
+      alert("Please fill all fields");
       return;
     }
-
-    const bill = {
-      id: Date.now(),
+    await addBill({
       studentName: newBill.studentName.trim(),
       month: newBill.month.trim(),
       amount: Number(newBill.amount),
       status: newBill.status,
-    };
-
-    setBills((prev) => [...prev, bill]);
-
-    // reset form
-    setNewBill({
-      studentName: "",
-      month: "",
-      amount: "",
-      status: "Unpaid",
+      date: new Date().toLocaleDateString(),
     });
-
-    setError(""); // clear error
+    setNewBill({ studentName: "", month: "", amount: "", status: "Unpaid" });
   };
 
-  // ===== FILTER LOGIC =====
+  const markPaid = async (id) => {
+    await updateBill(id, { status: "Paid" });
+  };
+
+  const handleDelete = async (id) => {
+    await deleteBill(id);
+  };
+
   const filteredBills = useMemo(() => {
     if (filter === "All") return bills;
-    return bills.filter((bill) => bill.status === filter);
+    return bills.filter((b) => b.status === filter);
   }, [bills, filter]);
 
-  // ===== CALCULATIONS =====
-  const totalStudents = bills.length;
   const paidBills = bills.filter((b) => b.status === "Paid").length;
   const unpaidBills = bills.filter((b) => b.status === "Unpaid").length;
-  const totalRevenue = bills
-    .filter((b) => b.status === "Paid")
-    .reduce((acc, b) => acc + b.amount, 0);
+  const totalRevenue = bills.filter((b) => b.status === "Paid").reduce((acc, b) => acc + b.amount, 0);
 
   return (
     <div className="billing-container">
-      <div className="billing-header">
-        <div>
-          <h1>Billing Management</h1>
-          <p>Manage and track student payments</p>
-        </div>
+      <h1>Billing Management</h1>
+      <p className="subtitle">Manage and track student payments</p>
+
+      <div className="summary-grid">
+        <div className="card"><h4>Total Bills</h4><h2>{bills.length}</h2></div>
+        <div className="card paid-card"><h4>Paid Bills</h4><h2>{paidBills}</h2></div>
+        <div className="card unpaid-card"><h4>Unpaid Bills</h4><h2>{unpaidBills}</h2></div>
+        <div className="card revenue-card"><h4>Total Revenue</h4><h2>₹{totalRevenue}</h2></div>
       </div>
 
-      {/* ===== FORM ===== */}
-      <form className="input-section" onSubmit={handleAddBill}>
-        <input
-          type="text"
-          placeholder="Student Name"
-          value={newBill.studentName}
-          onChange={(e) =>
-            setNewBill({ ...newBill, studentName: e.target.value })
-          }
-        />
-
-        <input
-          type="text"
-          placeholder="Month (e.g. Feb 2026)"
-          value={newBill.month}
-          onChange={(e) =>
-            setNewBill({ ...newBill, month: e.target.value })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Amount"
-          value={newBill.amount}
-          onChange={(e) =>
-            setNewBill({ ...newBill, amount: e.target.value })
-          }
-        />
-
-        <select
-          value={newBill.status}
-          onChange={(e) =>
-            setNewBill({ ...newBill, status: e.target.value })
-          }
-        >
+      <form className="billing-form" onSubmit={handleAddBill}>
+        <select value={newBill.studentName}
+          onChange={(e) => setNewBill({ ...newBill, studentName: e.target.value })}>
+          <option value="">Select Student</option>
+          {students.map((s) => (
+            <option key={s.id} value={s.email}>{s.name} — {s.email}</option>
+          ))}
+        </select>
+        <input type="text" placeholder="Month (e.g. Feb 2026)" value={newBill.month}
+          onChange={(e) => setNewBill({ ...newBill, month: e.target.value })} />
+        <input type="number" placeholder="Amount" value={newBill.amount}
+          onChange={(e) => setNewBill({ ...newBill, amount: e.target.value })} />
+        <select value={newBill.status} onChange={(e) => setNewBill({ ...newBill, status: e.target.value })}>
           <option value="Paid">Paid</option>
           <option value="Unpaid">Unpaid</option>
         </select>
-
-        <button type="submit" className="add-btn">
-          + Add Bill
-        </button>
+        <button type="submit">Add Bill</button>
       </form>
 
-      {/* ===== ERROR MESSAGE ===== */}
-      {error && <p className="error-text">{error}</p>}
-
-      {/* ===== SUMMARY ===== */}
-      <div className="billing-summary">
-        <div className="summary-card">
-          <h4>Total Students</h4>
-          <h2>{totalStudents}</h2>
-        </div>
-
-        <div className="summary-card paid-card">
-          <h4>Paid Bills</h4>
-          <h2>{paidBills}</h2>
-        </div>
-
-        <div className="summary-card unpaid-card">
-          <h4>Unpaid Bills</h4>
-          <h2>{unpaidBills}</h2>
-        </div>
-
-        <div className="summary-card revenue-card">
-          <h4>Total Revenue</h4>
-          <h2>₹{totalRevenue}</h2>
-        </div>
-      </div>
-
-      {/* ===== FILTER ===== */}
       <div className="filter-tabs">
-        {["All", "Paid", "Unpaid"].map((type) => (
-          <button
-            key={type}
-            type="button"
-            className={`tab ${filter === type ? "active" : ""}`}
-            onClick={() => setFilter(type)}
-          >
-            {type}
-          </button>
+        {["All", "Paid", "Unpaid"].map((tab) => (
+          <button key={tab} className={filter === tab ? "active" : ""} onClick={() => setFilter(tab)}>{tab}</button>
         ))}
       </div>
 
-      {/* ===== TABLE ===== */}
-      <div className="billing-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Month</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBills.map((bill) => (
-              <tr key={bill.id}>
-                <td>{bill.studentName}</td>
-                <td>{bill.month}</td>
-                <td>₹{bill.amount}</td>
-                <td>
-                  <span
-                    className={`status ${
-                      bill.status === "Paid" ? "paid" : "unpaid"
-                    }`}
-                  >
-                    {bill.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {filteredBills.length === 0 && (
-          <p className="empty-text">No bills found</p>
-        )}
+      <div className="bill-list">
+        {filteredBills.map((b) => (
+          <div key={b.id} className={`bill-card ${b.status === "Paid" ? "paid" : "unpaid"}`}>
+            <div className="bill-header">
+              <h3>{b.studentName}</h3>
+              <span className={b.status === "Paid" ? "badge paid-badge" : "badge unpaid-badge"}>{b.status}</span>
+            </div>
+            <p>Month: {b.month}</p>
+            <p>Amount: ₹{b.amount}</p>
+            <div className="bill-footer">
+              <span>Date: {b.date}</span>
+              <div className="actions">
+                {b.status === "Unpaid" && (
+                  <button className="pay-btn" onClick={() => markPaid(b.id)}>Mark Paid</button>
+                )}
+                <button className="delete-btn" onClick={() => handleDelete(b.id)}>Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {filteredBills.length === 0 && <p className="empty">No bills found</p>}
       </div>
     </div>
   );

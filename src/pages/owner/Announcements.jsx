@@ -1,213 +1,100 @@
-import React, { useState, useEffect } from "react";
-import {
-  FaBullhorn,
-  FaCalendarAlt,
-  FaUsers,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-} from "react-icons/fa";
-
+import { useState } from "react";
+import { FaTrash, FaSearch } from "react-icons/fa";
+import { useMess } from "../../context/MessContext";
 import "./Announcements.css";
 
 const Announcements = () => {
-  const [announcements, setAnnouncements] = useState([]);
+  const { announcements, addAnnouncement, deleteAnnouncement } = useMess();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [filter, setFilter] = useState("All");
+  const [formData, setFormData] = useState({ title: "", description: "", audience: "All Students" });
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    audience: "All Students",
-  });
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("announcements"));
-    if (saved) {
-      setAnnouncements(saved);
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem("announcements", JSON.stringify(announcements));
-  }, [announcements]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = () => {
-    if (!formData.title || !formData.description) {
-      alert("Please fill all fields!");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.description.trim()) {
+      alert("Please fill all fields");
       return;
     }
-
-    if (editingId) {
-      setAnnouncements(
-        announcements.map((a) =>
-          a.id === editingId ? { ...a, ...formData } : a
-        )
-      );
-      setEditingId(null);
-    } else {
-      const newAnnouncement = {
-        id: Date.now(),
-        ...formData,
-        date: new Date().toLocaleString(),
-      };
-      setAnnouncements([newAnnouncement, ...announcements]);
-    }
-
+    await addAnnouncement({ ...formData, date: new Date().toISOString() });
     setFormData({ title: "", description: "", audience: "All Students" });
-    setShowModal(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete?")) {
-      setAnnouncements(announcements.filter((a) => a.id !== id));
+      await deleteAnnouncement(id);
     }
-  };
-
-  const handleEdit = (announcement) => {
-    setFormData(announcement);
-    setEditingId(announcement.id);
-    setShowModal(true);
   };
 
   const filteredAnnouncements = announcements.filter((a) => {
-    return (
+    const matchesSearch =
       a.title.toLowerCase().includes(search.toLowerCase()) ||
-      a.description.toLowerCase().includes(search.toLowerCase())
-    );
+      a.description.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === "All" ? true : a.audience === filter;
+    return matchesSearch && matchesFilter;
   });
 
+  const totalAnnouncements = announcements.length;
   const thisMonth = announcements.filter(
     (a) => new Date(a.date).getMonth() === new Date().getMonth()
-  );
+  ).length;
 
   return (
     <div className="announcement-page">
-      {/* Header */}
-      <div className="top-bar">
-        <h2>Announcements</h2>
-        <button className="create-btn" onClick={() => setShowModal(true)}>
-          <FaPlus /> Create Announcement
-        </button>
+      <h2>Announcements</h2>
+      <p className="subtitle">Create and manage announcements for students and staff</p>
+
+      <div className="summary-grid">
+        <div className="card"><h4>Total Announcements</h4><h2>{totalAnnouncements}</h2></div>
+        <div className="card month-card"><h4>This Month</h4><h2>{thisMonth}</h2></div>
       </div>
 
-      {/* Stats */}
-      <div className="stats-container">
-        <div className="stat-card">
-          <FaBullhorn />
-          <h3>{announcements.length}</h3>
-          <p>Total Announcements</p>
-        </div>
+      <form className="announcement-form" onSubmit={handleSubmit}>
+        <input type="text" name="title" placeholder="Announcement Title"
+          value={formData.title} onChange={handleChange} />
+        <textarea name="description" placeholder="Announcement Description"
+          value={formData.description} onChange={handleChange} rows="3" />
+        <select name="audience" value={formData.audience} onChange={handleChange}>
+          <option value="All Students">All Students</option>
+          <option value="Hostel Students">Hostel Students</option>
+          <option value="Staff">Staff</option>
+        </select>
+        <button type="submit">Create Announcement</button>
+      </form>
 
-        <div className="stat-card">
-          <FaCalendarAlt />
-          <h3>{thisMonth.length}</h3>
-          <p>This Month</p>
-        </div>
-
-        <div className="stat-card">
-          <FaUsers />
-          <h3>{announcements.length * 100}</h3>
-          <p>Reach</p>
-        </div>
+      <div className="filter-tabs">
+        {["All", "All Students", "Hostel Students", "Staff"].map((tab) => (
+          <button key={tab} className={filter === tab ? "active" : ""} onClick={() => setFilter(tab)}>{tab}</button>
+        ))}
       </div>
 
-      {/* Search */}
       <div className="search-box">
         <FaSearch />
-        <input
-          type="text"
-          placeholder="Search announcements..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <input type="text" placeholder="Search announcements..." value={search}
+          onChange={(e) => setSearch(e.target.value)} />
       </div>
 
-      {/* List */}
       <div className="announcement-list">
-        {filteredAnnouncements.length === 0 ? (
-          <p className="no-data">No announcements found.</p>
-        ) : (
-          filteredAnnouncements.map((a) => (
-            <div key={a.id} className="announcement-card">
-              <div className="card-left">
-                <FaBullhorn className="icon" />
-                <div>
-                  <h4>{a.title}</h4>
-                  <p>{a.description}</p>
-                  <span className="audience">{a.audience}</span>
-                </div>
-              </div>
-
-              <div className="card-right">
-                <small>{a.date}</small>
-                <div className="actions">
-                  <FaEdit onClick={() => handleEdit(a)} />
-                  <FaTrash onClick={() => handleDelete(a.id)} />
-                </div>
-              </div>
+        {filteredAnnouncements.map((a) => (
+          <div key={a.id} className="announcement-card">
+            <div className="announcement-header">
+              <h3>{a.title}</h3>
+              <span className="badge audience-badge">{a.audience}</span>
             </div>
-          ))
-        )}
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>{editingId ? "Edit Announcement" : "Create Announcement"}</h3>
-
-            <input
-              type="text"
-              name="title"
-              placeholder="Title"
-              value={formData.title}
-              onChange={handleChange}
-            />
-
-            <textarea
-              name="description"
-              placeholder="Description"
-              value={formData.description}
-              onChange={handleChange}
-            />
-
-            <select
-              name="audience"
-              value={formData.audience}
-              onChange={handleChange}
-            >
-              <option>All Students</option>
-              <option>Hostel Students</option>
-              <option>Staff</option>
-            </select>
-
-            <div className="modal-actions">
-              <button onClick={handleSubmit}>
-                {editingId ? "Update" : "Create"}
-              </button>
-              <button
-                className="cancel-btn"
-                onClick={() => {
-                  setShowModal(false);
-                  setEditingId(null);
-                }}
-              >
-                Cancel
-              </button>
+            <p>{a.description}</p>
+            <div className="announcement-footer">
+              <span>Created: {new Date(a.date).toLocaleDateString()}</span>
+              <div className="actions">
+                <button className="delete-btn" onClick={() => handleDelete(a.id)}>
+                  <FaTrash /> Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ))}
+        {filteredAnnouncements.length === 0 && <p className="empty">No announcements found</p>}
+      </div>
     </div>
   );
 };

@@ -1,132 +1,171 @@
 .student-container {
-  padding: 30px;
-  font-family: Arial, sans-serif;
-  background: #f4f6fa;
+  padding: 40px;
+  background: #f3f4f6;
+  min-height: 100vh;
 }
 
-.header {
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+/* SUMMARY */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.active-card {
+  border-left: 4px solid #10b981;
+}
+
+.pending-card {
+  border-left: 4px solid #f59e0b;
+}
+
+/* FORM */
+.student-form {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.add-btn {
-  background: #2b3f8f;
+.student-form input,
+.student-form select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.student-form button {
+  background: #2563eb;
   color: white;
+  padding: 10px;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.controls {
-  display: flex;
-  gap: 20px;
-  margin: 20px 0;
+/* FILTER */
+.filter-tabs {
+  margin-bottom: 20px;
 }
 
-.controls input,
-.controls select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.filter-tabs button {
+  margin-right: 10px;
+  padding: 6px 15px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
 }
 
-.table-wrapper {
-  background: white;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+.filter-tabs .active {
+  background: #2563eb;
+  color: white;
 }
 
-table {
+/* SEARCH */
+.search-box {
+  margin-bottom: 20px;
+}
+
+.search-box input {
   width: 100%;
-  border-collapse: collapse;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
 }
 
-th, td {
-  padding: 12px;
-  text-align: left;
+/* LIST */
+.student-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
-th {
-  background: #f0f2f8;
+.student-card.active {
+  border-left: 4px solid #10b981;
 }
 
-tr:hover {
-  background: #f9f9f9;
+.student-card.pending {
+  border-left: 4px solid #f59e0b;
 }
 
-.status {
-  padding: 5px 10px;
-  border-radius: 15px;
+.student-card.leave {
+  border-left: 4px solid #ef4444;
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 12px;
+  font-weight: 600;
 }
 
-.status.Active {
-  background: #d4f8e8;
-  color: #1b8f5a;
+.active-badge {
+  background: #dcfce7;
+  color: #15803d;
 }
 
-.status.Pending {
-  background: #fff4cc;
-  color: #b58b00;
+.pending-badge {
+  background: #fff7ed;
+  color: #b45309;
 }
 
-.status.Leave {
-  background: #ffe0e0;
-  color: #d11a2a;
+.leave-badge {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.student-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
 }
 
 .actions button {
-  margin-right: 6px;
+  margin-left: 10px;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
 }
 
-.approve {
-  background: #28a745;
+.approve-btn {
+  background: #16a34a;
   color: white;
 }
 
-.remove {
-  background: #dc3545;
+.delete-btn {
+  background: #dc2626;
   color: white;
 }
 
-.view {
-  background: #6c757d;
-  color: white;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-}
-
-.modal-content input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
+.empty {
+  text-align: center;
+  color: #6b7280;
+  margin-top: 20px;
 }

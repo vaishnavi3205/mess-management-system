@@ -16,38 +16,19 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Validation
   const validate = () => {
     let newErrors = {};
-
-    if (!formData.role) {
-      newErrors.role = "Please select a role";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (/^[A-Z]/.test(formData.email)) {
-      newErrors.email = "Email should not start with a capital letter";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
+    if (!formData.role) newErrors.role = "Please select a role";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
     return newErrors;
   };
 
-  // Handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'email') {
-      setFormData({ ...formData, [name]: value.toLowerCase() });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData({ ...formData, [name]: name === "email" ? value.toLowerCase() : value });
   };
 
-  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -59,23 +40,20 @@ const Login = () => {
 
     try {
       setLoading(true);
+      setErrors({});
 
-      // Use auth context login
-      const success = login(formData);
+      // await is critical — login() is async
+      const success = await login(formData);
+
       if (success) {
-        // Save user (optional)
-        localStorage.setItem("user", JSON.stringify({ email: formData.email, role: formData.role }));
-
-        // Dynamic navigation based on role
         if (formData.role === "owner") {
           navigate("/dashboard");
         } else if (formData.role === "student") {
           navigate("/student");
         }
       } else {
-        setErrors({ api: "Invalid credentials" });
+        setErrors({ api: "Invalid credentials or wrong role selected." });
       }
-
     } catch (error) {
       setErrors({ api: error.message });
     } finally {
@@ -89,7 +67,6 @@ const Login = () => {
         <h1>Login</h1>
 
         <form onSubmit={handleSubmit}>
-          {/* Role */}
           <select name="role" value={formData.role} onChange={handleChange}>
             <option value="">Select Role</option>
             <option value="owner">Owner</option>
@@ -97,27 +74,14 @@ const Login = () => {
           </select>
           {errors.role && <span className="error">{errors.role}</span>}
 
-          {/* Email */}
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <input type="email" name="email" placeholder="Enter Email"
+            value={formData.email} onChange={handleChange} />
           {errors.email && <span className="error">{errors.email}</span>}
 
-          {/* Password */}
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <input type="password" name="password" placeholder="Enter Password"
+            value={formData.password} onChange={handleChange} />
           {errors.password && <span className="error">{errors.password}</span>}
 
-          {/* API Error */}
           {errors.api && <span className="error">{errors.api}</span>}
 
           <button type="submit" disabled={loading}>
